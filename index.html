@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>*poll: Darwin in Unix APIs</title>
+
+		<meta name="description" content="Poll">
+		<meta name="author" content="Paul Querna">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="./reveal.js/css/reveal.min.css">
+		<!-- <link rel="stylesheet" href="./reveal.js/css/theme/default.css" id="theme"> -->
+		<link rel="stylesheet" href="./reveal.js/css/theme/simple.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/obsidian.css">
+		<!-- <link rel="stylesheet" href="./reveal.js/lib/css/zenburn.css"> -->
+
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = './reveal.js/css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="./reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<style type="text/css" media="screen">
+		@-webkit-keyframes blink {
+      		0%     { opacity: 0 } 50% { opacity: 0 }
+      		50.01% { opacity: 1 } 100% { opacity: 1 }
+    	}
+
+	    blink {
+    		-webkit-animation: blink 0.7s infinite linear alternate;
+      		-webkit-font-smoothing: antialiased;
+    	}
+    
+	    .left {
+	      float: left;
+	    }
+
+.reveal .slides {
+  height: 100% !important;
+  top: 0 !important;
+  margin-top: 2em !important;
+}
+
+.reveal .slides>section {
+  min-height: 90% !important;
+  top: auto !important;
+}
+
+.reveal .slides>section>section {
+  min-height: 100% !important;
+  top: auto !important;
+}
+
+.imgfill {
+	height: 800px;
+}
+
+.imgfill img.wide {
+    max-width: 80%;
+    max-height: 80%;
+    height: auto;
+}
+.imgfill img.tall {
+    max-height: 80%;
+    max-width: 80%;
+    width: auto;
+}​
+
+span.comment {
+}
+/*
+	    .reveal .slides>section>h2.title {
+	      padding-bottom: 0.5em;
+	      position:relative;
+	      top:-50px;
+	    }*/
+/*
+	    .reveal .slides {
+	    	top: 2em;
+	    }*/
+		</style>
+
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>the extinction of <code>select()</code></h1>
+					<br/>
+					<p>
+						<small><a href="http://paul.querna.org/">Paul Querna </a> / <a href="http://twitter.com/pquerna">@pquerna</a></small>
+					</p>
+					<p><small>2015-01-15</small></p>
+				</section>
+
+				<section>
+					<h2>Overview</h2>
+					<div class="imgfill">
+						<img style="border: none;" src="./img/overview.png" class="tall">
+					</div>
+				</section>
+
+				<section>
+					<h2>System Calls</h2>
+					<div class="imgfill">
+						<img style="height: 800px; border: none;" src="./img/x86rings.png" class="tall">
+					</div>
+					<p><small><small><a href="http://duartes.org/gustavo/blog/post/cpu-rings-privilege-and-protection/">source</a></small></small></p>
+				</section>
+
+				<section>
+					<h2><code>select()</code></h2>
+					<div class="text-left">
+						<h3>Input:</h3>
+						<ul>
+							<li>FDs <em>sets</em></li>
+							<li>Timeout</li>
+						</ul>
+
+						<h3>Output:</h3>
+						<ul>
+							<li>>=: Active bit on FD set</li>
+							<li>-1: set <code>errno</code> global</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<pre style="letter-spacing: initial;"><code data-language="c" data-code="./c/select_intro.c" data-trim></code></pre>
+				</section>
+
+				<section>
+					<pre style="letter-spacing: initial;"><code data-language="c" data-code="./c/fd_set.c" data-trim></code></pre>
+					<p>See Also: <a href="http://www.catonmat.net/blog/low-level-bit-hacks-you-absolutely-must-know/">Low Level Bit Hacks You Absolutely Must Know</a></p>
+				</section>
+
+				<section>
+					<h2><code>select</code> in Big O notation*</h2>
+					<div class="text-left">
+						<ul>
+							<li>FD_SET: O(1)</li>
+							<li>FD_ZERO: O(FD_SETSIZE)</li>
+							<li><code>select</code> kernel implementation: O(2*FD_SETSIZE)</li>
+						</ul>
+					</div>
+					<br/>
+						<p>
+					<small>(*) FD_SETSIZE is a <em>constant</em> in a header file, but give me some rope here.</small></p>
+				</section>
+
+				<section>
+					<h2>Evolutionary pressure: 1996.</h2>
+					<h3><code>FD_SETSIZE = 1024</code></h3>
+					<h3><code>squid</code>** was written.</h3>
+					<h3>more clients.</h3>
+					<h3>multiple FDs per-client. (not just network)</h3>
+					<h3>HTTP keepalive.</h3>
+					<small>(**) actually lots of software was written.</small>
+				</section>
+
+				<section>
+					<h1>More than <code>1024</code> FDs?</h1>
+				</section>
+
+				<section>
+					<h2>Introducing <code>poll()</code></h2>
+					<h3>Instead of a fixed size array, let the user allocate it!</h3>
+					<img src="./img/brilliant.jpg" height="400"/>
+					<h3>Added in Linux 2.1.32, Jan, 1997.</h3>
+				</section>
+
+				<section>
+					<h2><code>poll()</code></h2>
+					<div class="text-left">
+						<h3>Input:</h3>
+						<ul>
+							<li>FDs array</li>
+							<li>Size of FD array</li>
+							<li>Timeout</li>
+						</ul>
+
+						<h3>Output:</h3>
+						<ul>
+							<li>>=1: Updated <code>.revent</code> for each FD.</li>
+							<li>-1: set <code>errno</code> global</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<pre style="letter-spacing: initial;"><code data-language="c" data-code="./c/poll_intro.c" data-trim></code></pre>
+				</section>
+
+				<section>
+					<h2><code>poll</code> in Big O notation</h2>
+					<div class="text-left">
+						<ul>
+							<li>Array operations for FD: O(n)</li>
+							<li><code>poll</code> kernel implementation: O(2*n)</li>
+						</ul>
+					</div>
+					<br/>
+						<p><small>(*) Assuming you don't need to <code>realloc</code> as <code>n</code> increases.</small></p>
+						<p><small>(*) Because <code>pollfd</code> is a struct, you can index it in another data structure to get better big O in user-space.</small></p>
+				</section>
+
+				<section>
+					<h2>Evolutionary pressure continues</h2>
+					<h3>more clients.</h3>
+					<h3>global clients.</h3>
+					<h3><em>idle</em> network protocols. <small>(due to TCP handshake)</small></h3>
+				</section>
+
+				<section>
+					<h2>c10k and HTTP 1.1</h2>
+					<div class="text-left">
+						<ul>
+							<li>10,000 clients: any 10ms period, 10 active.</li>
+							<li>Userspace <code>poll()</code> needs to do <code>O(10,000)</code> operations</li>
+							<li>Kernel needs to copy <code>10,000 * sizeof(pollfd)</code>: 80kb</li>
+							<li>Kernel needs to do <code>O(2*10,000)</code> operations.</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<h2>Introducing <code>epoll()</code></h2>
+					<h3>Added in Linux 2.5.44, Oct, 2002.</h3>
+					<small>See also: <a href="http://www.kegel.com/c10k.html">C10K problem</a></small>
+				</section>
+
+
+				<section>
+					<h2>Parallel Evolution</h2>
+					<table class="table-striped table-bordered table-condensed">
+						<thead>
+							<tr>
+								<th width="160"></th>
+								<th>FreeBSD</th>
+								<th>Linux</th>
+								<th>Windows</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th>FD_SET</th>
+								<td>select</td>
+								<td>select</td>
+								<td>WSASelect</td>
+							</tr>
+							<tr>
+								<th>FD Array</th>
+								<td>poll</td>
+								<td>poll</td>
+								<td>WSAPoll</td>
+							</tr>
+
+							<tr>
+								<th>Evented</th>
+								<td>kqueue</td>
+								<td>epoll</td>
+								<td>-</td>
+							</tr>
+
+							<tr>
+								<th>Other Objects</th>
+								<td>kqueue</td>
+								<td><em>everything is FD</em></td>
+								<td>WaitForMultipleObjects</td>
+							</tr>
+
+							<tr>
+								<th>Async IO</th>
+								<td>-</td>
+								<td>-</td>
+								<td>IOCP</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+
+				<section>
+					<h2>Mass Extinction</h2>
+					<div class="imgfill">
+						<img src="./img/asteriod.jpg" class="tall"/>
+					</div>
+						<p><small><small><a href="http://www.heritagedaily.com/2011/11/researchers-pinpoint-date-and-rate-of-earths-most-extreme-extinction/15610">source</a></small></small></p>
+				</section>
+
+				<section>
+					<h2>Not a single event.</h2>
+					<h2>20 years of Selection Pressure.</h2>
+				</section>
+
+				<section>
+					<h2>Evolution</h2>
+					<div class="imgfill">
+						<img src="./img/darwin.jpg" class="wide"/>
+					</div>
+						<p><small><small><a href="http://commons.wikimedia.org/wiki/File:Editorial_cartoon_depicting_Charles_Darwin_as_an_ape_(1871).jpg">source</a></small></small></p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="./reveal.js/lib/js/head.min.js"></script>
+		<script src="./reveal.js/js/reveal.min.js"></script>
+		<!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/rainbow.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/generic.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/c.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/js/language/python.js"></script>
+					<!-- http://en.wikipedia.org/wiki/File:Editorial_cartoon_depicting_Charles_Darwin_as_an_ape_(1871).jpg -->
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: './reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					/*{ src: './reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { 
+							hljs.initHighlightingOnLoad();
+							hljs.configure({classPrefix: "hljs"});
+					} },*/
+					{ src: './plugin/externalcode/externalcode.js', condition: function() { return !!document.querySelector( '[data-code]' ); } },
+					{ src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: './reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
