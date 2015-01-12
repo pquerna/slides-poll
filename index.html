@@ -106,7 +106,7 @@ span.comment {
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>the extinction of <code>select()</code></h1>
+					<h1>evolution of <code>select()</code></h1>
 					<br/>
 					<p>
 						<small><a href="http://paul.querna.org/">Paul Querna </a> / <a href="http://twitter.com/pquerna">@pquerna</a></small>
@@ -260,6 +260,9 @@ span.comment {
 					<h3>GUI Event Loops</h3>
 					<h3>filesystem watches</h3>
 					<h3>non-network objects.</h3>
+					<h3>signals</h3>
+					<br/>
+					<h3>Linux Answer: Everything is an FD.</h3>
 				</section>
 
 				<section>
@@ -269,6 +272,25 @@ span.comment {
 					</video>
 
 					<h3>Added in Linux 2.5.44, Oct, 2002.</h3>
+				</section>
+
+				<section>
+					<h2><code>epoll()</code></h2>
+					<div class="text-left">
+						<h3>Multiple functions:</h3>
+						<ul>
+							<li>epoll_create</li>
+							<li>epoll_ctl</li>
+							<li>epoll_wait</li>
+						</ul>
+
+						<h3>epoll_wait:</h3>
+						<ul>
+							<li><em>epoll FD</em></li>
+							<li>Output Array</li>
+							<li>Timeout</li>
+						</ul>
+					</div>
 				</section>
 
 				<section>
