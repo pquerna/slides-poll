@@ -160,8 +160,9 @@ span.comment {
 					<div class="text-left">
 						<ul>
 							<li>FD_SET: O(1)</li>
-							<li>FD_ZERO: O(FD_SETSIZE)</li>
-							<li><code>select</code> kernel implementation: O(2*FD_SETSIZE)</li>
+							<li>FD_ZERO: O(FD_SETSIZE/8)</li>
+							<li><code>select</code> kernel-side: CPU: O(2*FD_SETSIZE)</li>
+							<li><code>select</code> kernel-side: Memory Copy: O(3*FD_SETSIZE/8)</li>
 						</ul>
 					</div>
 					<br/>
@@ -184,10 +185,18 @@ span.comment {
 				</section>
 
 				<section>
+					<h2>Redefine <code>FD_SETSIZE</code> to be bigger!</h2>
+					<video height="300" autoplay loop>
+						 <source src="./img/survive.webm" type="video/webm">
+					</video>
+					<!-- <img src="./img/everything-is-fine.gif" height="300"/>-->
+				</section>
+
+				<section>
 					<h2>Introducing <code>poll()</code></h2>
-					<h3>Instead of a fixed size array, let the user allocate it!</h3>
-					<img src="./img/brilliant.jpg" height="400"/>
-					<h3>Added in Linux 2.1.32, Jan, 1997.</h3>
+					<h4>Instead of a fixed size array, let the user allocate it!</h4>
+					<img src="./img/brilliant.jpg" height="300"/>
+					<h4>Added in Linux 2.1.32, Jan, 1997.</h4>
 				</section>
 
 				<section>
@@ -217,7 +226,8 @@ span.comment {
 					<div class="text-left">
 						<ul>
 							<li>Array operations for FD: O(n)</li>
-							<li><code>poll</code> kernel implementation: O(2*n)</li>
+							<li><code>poll</code> kernel-side: CPU: O(2*n)</li>
+							<li><code>poll</code> kernel-side: Memory Copy: O(n)</li>
 						</ul>
 					</div>
 					<br/>
@@ -241,13 +251,47 @@ span.comment {
 							<li>Kernel needs to copy <code>10,000 * sizeof(pollfd)</code>: 80kb</li>
 							<li>Kernel needs to do <code>O(2*10,000)</code> operations.</li>
 						</ul>
+					<small>See also: <a href="http://www.kegel.com/c10k.html">C10K problem</a></small>
 					</div>
 				</section>
 
 				<section>
+					<h2>Evolutionary pressure continues</h2>
+					<h3>GUI Event Loops</h3>
+					<h3>filesystem watches</h3>
+					<h3>non-network objects.</h3>
+				</section>
+
+				<section>
 					<h2>Introducing <code>epoll()</code></h2>
+					<video height="300" autoplay loop>
+						 <source src="./img/yeah.webm" type="video/webm">
+					</video>
+
 					<h3>Added in Linux 2.5.44, Oct, 2002.</h3>
-					<small>See also: <a href="http://www.kegel.com/c10k.html">C10K problem</a></small>
+				</section>
+
+				<section>
+					<pre style="letter-spacing: initial;"><code data-language="c" data-code="./c/epoll_intro.c" data-trim></code></pre>
+				</section>
+
+				<section>
+					<h2><code>epoll</code> in Big O notation</h2>
+					<div class="text-left">
+						<ul>
+							<li>add/remove: O(1)</li>
+							<li><code>epoll</code> kernel-side: CPU: O(1)</li>
+							<li><code>epoll</code> kernel-side: Memory Copy Out: O(active)</li>
+						</ul>
+					</div>
+				</section>
+
+				<section>
+					<h2>Evolution</h2>
+					<div class="imgfill">
+						<img src="./img/darwin.jpg" height="500" class="tall"/>
+					</div>
+						<p><small><small><a href="http://commons.wikimedia.org/wiki/File:Editorial_cartoon_depicting_Charles_Darwin_as_an_ape_(1871).jpg">source</a></small></small></p>
 				</section>
 
 
@@ -300,27 +344,33 @@ span.comment {
 					</table>
 				</section>
 
-
-				<section>
-					<h2>Mass Extinction</h2>
-					<div class="imgfill">
-						<img src="./img/asteriod.jpg" class="tall"/>
-					</div>
-						<p><small><small><a href="http://www.heritagedaily.com/2011/11/researchers-pinpoint-date-and-rate-of-earths-most-extreme-extinction/15610">source</a></small></small></p>
-				</section>
-
 				<section>
 					<h2>Not a single event.</h2>
 					<h2>20 years of Selection Pressure.</h2>
 				</section>
 
 				<section>
-					<h2>Evolution</h2>
-					<div class="imgfill">
-						<img src="./img/darwin.jpg" class="wide"/>
-					</div>
-						<p><small><small><a href="http://commons.wikimedia.org/wiki/File:Editorial_cartoon_depicting_Charles_Darwin_as_an_ape_(1871).jpg">source</a></small></small></p>
+					<h1>Does it matter?</h1>
 				</section>
+
+				<section>
+					<h2>Your development world is defined by this evolutionary path.</h2>
+				</section>
+
+				<section>
+					<h2>Applied Multiplexing</h2>
+					<h3>libuv / node.js / luvi</h3>
+					<h3>twisted</h3>
+					<h3>eventlet</h3>
+					<h3><em>go</em></h3>
+				</section>
+
+				<section>
+					<div class="imgfill">
+						<img src="./img/made-up.gif" class="wide"/>
+					</div>
+				</section>
+
 			</div>
 
 		</div>
