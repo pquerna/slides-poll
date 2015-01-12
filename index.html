@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>*poll: Darwin in Unix APIs</title>
+		<title>evolution of select()</title>
 
 		<meta name="description" content="Poll">
 		<meta name="author" content="Paul Querna">
@@ -105,13 +105,26 @@ span.comment {
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
+
 				<section>
 					<h1>evolution of <code>select()</code></h1>
 					<br/>
 					<p>
 						<small><a href="http://paul.querna.org/">Paul Querna </a> / <a href="http://twitter.com/pquerna">@pquerna</a></small>
 					</p>
-					<p><small>2015-01-15</small></p>
+					<p><small>2015-01-12</small></p>
+				</section>
+
+				<section>
+					<img src="./img/why.gif" width="100%"/>
+				</section>
+
+				<section>
+					<img src="./img/nature.gif" width="100%"/>
+				</section>
+
+				<section>
+					<img src="./img/remember.gif" width="100%"/>
 				</section>
 
 				<section>
@@ -134,13 +147,13 @@ span.comment {
 					<div class="text-left">
 						<h3>Input:</h3>
 						<ul>
-							<li>FDs <em>sets</em></li>
+							<li><em>FD sets</em> for read, write, error.</li>
 							<li>Timeout</li>
 						</ul>
 
 						<h3>Output:</h3>
 						<ul>
-							<li>>=: Active bit on FD set</li>
+							<li>>=0: Active bit on FD set</li>
 							<li>-1: set <code>errno</code> global</li>
 						</ul>
 					</div>
@@ -181,7 +194,7 @@ span.comment {
 				</section>
 
 				<section>
-					<h1>More than <code>1024</code> FDs?</h1>
+					<h1>More than <strike><code>64</code></strike> <code>1024</code> FDs?</h1>
 				</section>
 
 				<section>
@@ -391,6 +404,9 @@ span.comment {
 					<img src="./img/minons.gif" width="100%"/>
 				</section>
 
+				<section>
+					<iframe src="http://giphy.com/embed/9NxGPWHEZGous?html5=true" width="480" height="570" frameBorder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				</section>
 			</div>
 
 		</div>
