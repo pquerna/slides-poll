@@ -297,9 +297,9 @@ span.comment {
 					<h2><code>epoll</code> in Big O notation</h2>
 					<div class="text-left">
 						<ul>
-							<li>ctl add/remove: O(log N)</li>
-							<li><code>epoll</code> kernel-side: CPU: O(1)</li>
-							<li><code>epoll</code> kernel-side: Memory Copy Out: O(active)</li>
+							<li><code>epoll_ctl</code> add/remove: O(log N)</li>
+							<li><code>epoll_wait</code> kernel-side: CPU: O(1)</li>
+							<li><code>epoll_wait</code> kernel-side: Memory Copy Out: O(active)</li>
 						</ul>
 					</div>
 				</section>
@@ -388,9 +388,7 @@ span.comment {
 				</section>
 
 				<section>
-					<div class="imgfill">
-						<img src="./img/made-up.gif" class="wide"/>
-					</div>
+					<img src="./img/minons.gif" width="100%"/>
 				</section>
 
 			</div>
